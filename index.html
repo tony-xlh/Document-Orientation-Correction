@@ -10,12 +10,17 @@
   <input type="button" value="Scan" onclick="AcquireImage();" />
   <label>
     Scanner:
-    <select id="select-scanner"></select>
+    <select id="select-scanner" onchange="selectedScannerChanged()"></select>
   </label>
   <br/>
   <label>
     Use the scanner's configuration UI:
     <input type="checkbox" id="showUI"/>
+  </label>
+  <br/>
+  <label>
+    Does the scanner support orientation correction:
+    <span id="supportOrientationCorrection"></span>
   </label>
   <br/>
   <label>
@@ -85,6 +90,10 @@
         let option = new Option(scanner.displayName,index);
         selScanners.appendChild(option);
       }
+      if (scanners.length > 0) {
+        selScanners.selectedIndex = 0;
+        selectedScannerChanged();
+      }
     }
 
     async function AcquireImage() {
@@ -104,6 +113,41 @@
       }
     }
 
+    async function selectedScannerChanged(){
+      console.log("change")
+      const selectedIndex = document.getElementById("select-scanner").selectedIndex;
+      await DWObject.SelectDeviceAsync(scanners[selectedIndex]);
+      try {
+        await enableOrientationCorrection();
+        document.getElementById("supportOrientationCorrection").innerHTML = "yes. Orientation correction enabled.";
+      }catch(e) {
+        console.log("orientation correction not supported");
+        document.getElementById("supportOrientationCorrection").innerHTML = "no";
+      }
+    }
+
+    function enableOrientationCorrection(){
+      return new Promise((resolve, reject) => {
+        let config = {
+            "exception": "fail",
+            "capabilities": [
+                {
+                    "capability": Dynamsoft.DWT.EnumDWT_Cap.ICAP_AUTOMATICROTATE,
+                    "curValue": 1
+                }
+            ]
+        };
+        DWObject.setCapabilities(config,
+        function(e){
+          console.log(e);
+          resolve();
+        },
+        function(failData){
+          console.log(failData);
+          reject("error");
+        })
+      });
+    }
   </script>
 </body>
 
