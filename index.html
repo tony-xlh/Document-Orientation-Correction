@@ -55,6 +55,7 @@
   <input type="button" value="Show Editor" onclick="showEditor();" />
   <input type="button" value="Correct Document Orientation using Tesseract" onclick="correctOrientation();" />
   <div id="dwtcontrolContainer"></div>
+  <input type="button" value="Save as PDF" onclick="saveAsPDF();" />
   <script type="text/javascript">
     let DWObject;
     let scanners;
@@ -191,6 +192,12 @@
     function showEditor(){
       let imageEditor = DWObject.Viewer.createImageEditor();
       imageEditor.show();
+    }
+
+    function saveAsPDF(){
+      DWObject.SaveAllAsPDF(
+        "scanned.pdf",
+      );
     }
   </script>
 </body>
