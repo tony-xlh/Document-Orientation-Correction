@@ -8,3 +8,9 @@ There are two ways to correct the orientation:
 2. Use tesseract-ocr to detect the orientation and then rotate the image.
 
 [Online demo](https://tony-xlh.github.io/Document-Orientation-Correction/)
+
+
+
+https://github.com/xulihang/Document-Orientation-Correction/assets/5462205/9fc3dd39-c5a0-4dbb-b951-69056c40db8d
+
+
