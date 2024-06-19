@@ -4,6 +4,7 @@
     <title>Document Scanning via TWAIN</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
     <script src="https://unpkg.com/dwt@18.5.0/dist/dynamsoft.webtwain.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
   <h2>Document Scanning via TWAIN</h2>
@@ -50,6 +51,7 @@
       <option selected>Color</option>
     </select>
   </label>
+  <input type="button" value="Correct Document Orientation using Tesseract" onclick="correctOrientation();" />
   <div id="dwtcontrolContainer"></div>
   <script type="text/javascript">
     let DWObject;
@@ -147,6 +149,35 @@
           reject("error");
         })
       });
+    }
+
+    async function getBlob(index){
+      return new Promise((resolve, reject) => {
+        DWObject.ConvertToBlob(
+        [index],
+        Dynamsoft.DWT.EnumDWT_ImageType.IT_JPG,
+          function (result, indices, type) {
+            console.log(result.size);
+            resolve(result);
+          },
+          function (errorCode, errorString) {
+            console.log(errorString);
+            reject(errorString);
+          }
+        );
+      })
+    }
+
+    async function correctOrientation(){
+      for (let index = 0; index < DWObject.HowManyImagesInBuffer; index++) {
+        let image = await getBlob(index);
+        const worker = await Tesseract.createWorker('eng', 1, {legacyCore: true, legacyLang: true});
+        const { data } = await worker.detect(image);
+        console.log(data);
+        if (data.orientation_degrees == 180) {
+          DWObject.Flip(index);
+        }
+      }
     }
   </script>
 </body>
