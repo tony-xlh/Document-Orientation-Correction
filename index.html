@@ -51,6 +51,8 @@
       <option selected>Color</option>
     </select>
   </label>
+  <br/>
+  <input type="button" value="Show Editor" onclick="showEditor();" />
   <input type="button" value="Correct Document Orientation using Tesseract" onclick="correctOrientation();" />
   <div id="dwtcontrolContainer"></div>
   <script type="text/javascript">
@@ -178,6 +180,11 @@
           DWObject.Flip(index);
         }
       }
+    }
+
+    function showEditor(){
+      let imageEditor = DWObject.Viewer.createImageEditor();
+      imageEditor.show();
     }
   </script>
 </body>
