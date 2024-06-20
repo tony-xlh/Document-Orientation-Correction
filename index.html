@@ -172,14 +172,14 @@
     }
 
     async function correctOrientation(){
+      const worker = await Tesseract.createWorker('osd', 1, {
+        legacyCore: true, 
+        legacyLang: true,
+        logger: m => console.log(m),
+      });
       for (let index = 0; index < DWObject.HowManyImagesInBuffer; index++) {
         DWObject.SelectImages([index]);
         let image = await getBlob(index);
-        const worker = await Tesseract.createWorker('osd', 1, {
-          legacyCore: true, 
-          legacyLang: true,
-          logger: m => console.log(m),
-        });
         const { data } = await worker.detect(image);
         console.log(data);
         if (data.orientation_degrees == 180) {
