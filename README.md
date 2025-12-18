@@ -1,11 +1,11 @@
 # Document-Orientation-Correction
 
-A web demo of document orientation correction using [Dynamic Web TWAIN](https://www.dynamsoft.com/web-twain/overview) and Tesseract-OCR.
+A web demo of document orientation correction using [Dynamic Web TWAIN](https://www.dynamsoft.com/web-twain/overview).
 
 There are two ways to correct the orientation:
 
 1. Use the document scanner's built-in orientation correction capability if it has via TWAIN.
-2. Use tesseract-ocr to detect the orientation and then rotate the image.
+2. Use OCR to detect the orientation and then rotate the image. There are two options: Web TWAIN's OCR and Tesseract-OCR.
 
 [Online demo](https://tony-xlh.github.io/Document-Orientation-Correction/)
 
