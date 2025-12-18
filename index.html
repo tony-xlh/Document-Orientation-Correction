@@ -3,7 +3,7 @@
 <head>
     <title>Document Scanning via TWAIN</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
-    <script src="https://unpkg.com/dwt@18.5.0/dist/dynamsoft.webtwain.min.js"></script>
+    <script src="https://unpkg.com/dwt/dist/dynamsoft.webtwain.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
@@ -53,7 +53,13 @@
   </label>
   <br/>
   <input type="button" value="Show Editor" onclick="showEditor();" />
-  <input type="button" value="Correct Document Orientation using Tesseract" onclick="correctOrientation();" />
+  <input type="button" value="Correct Document Orientation using OCR" onclick="correctOrientation();" />
+  <label>
+    <select id="OCRForDetection">
+      <option>Web TWAIN's OCR</option>
+      <option>Tesseract-OCR</option>
+    </select>
+  </label>
   <div id="dwtcontrolContainer"></div>
   <input type="button" value="Save as PDF" onclick="saveAsPDF();" />
   <script type="text/javascript">
@@ -64,7 +70,7 @@
     function initDWT(){
       Dynamsoft.DWT.AutoLoad = false;
       Dynamsoft.DWT.Containers = [];
-      Dynamsoft.DWT.ResourcesPath = "https://unpkg.com/dwt@18.5.0/dist";
+      Dynamsoft.DWT.ResourcesPath = "https://unpkg.com/dwt/dist";
       let oneDayTrialLicense = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==";
       Dynamsoft.DWT.ProductKey = oneDayTrialLicense;  
       Dynamsoft.DWT.CreateDWTObjectEx(
@@ -171,18 +177,48 @@
       })
     }
 
-    async function correctOrientation(){
+    function correctOrientation(){
+      const ocrMethod = document.getElementById("OCRForDetection").selectedOptions[0].innerText;
+      if (ocrMethod === "Tesseract-OCR") {
+        correctOrientationUsingTesseract();
+      } else {
+        correctOrientationUsingDWT();
+      }
+    }
+
+    async function correctOrientationUsingTesseract(){
       const worker = await Tesseract.createWorker('osd', 1, {
         legacyCore: true, 
         legacyLang: true,
         logger: m => console.log(m),
       });
+      
       for (let index = 0; index < DWObject.HowManyImagesInBuffer; index++) {
         DWObject.SelectImages([index]);
         let image = await getBlob(index);
+        let startTime = new Date().getTime();
         const { data } = await worker.detect(image);
+        let endTime = new Date().getTime()
+        console.log("elapsed:");
+        console.log(endTime - startTime);
         console.log(data);
         if (data.orientation_degrees == 180) {
+          console.log("need correction")
+          DWObject.Rotate(index,180,true);
+        }
+      }
+    }
+
+    async function correctOrientationUsingDWT(){
+      for (let index = 0; index < DWObject.HowManyImagesInBuffer; index++) {
+        DWObject.SelectImages([index]);
+        let startTime = new Date().getTime();
+        let result = await DWObject.Addon.OCRKit.DetectPageOrientation(index);
+        let endTime = new Date().getTime()
+        console.log("elapsed:");
+        console.log(endTime - startTime);
+        console.log(result);
+        if (result.angle == 180) {
           console.log("need correction")
           DWObject.Rotate(index,180,true);
         }
